@@ -1,7 +1,7 @@
 class QrScanner {
     static readonly DEFAULT_CANVAS_SIZE = 400;
     static readonly NO_QR_CODE_FOUND = 'No QR code found';
-    private static _disableBarcodeDetector = false;
+    private static _disableBarcodeDetector = true; // Disable BarcodeDetector, as it can't provide binary qr data, only strings
     private static _workerMessageId = 0;
 
     /** @deprecated */
@@ -521,7 +521,9 @@ class QrScanner {
                         clearTimeout(timeout);
                         if (event.data.data !== null) {
                             resolve({
-                                data: event.data.data,
+                                stringData: event.data.data,
+                                binaryData: event.data.binaryData,
+                                version: event.data.version,
                                 cornerPoints: QrScanner._convertPoints(event.data.cornerPoints, scanRegion),
                             });
                         } else {
@@ -557,7 +559,7 @@ class QrScanner {
                             const [scanResult] = await qrEngine.detect(canvas!);
                             if (!scanResult) throw QrScanner.NO_QR_CODE_FOUND;
                             return {
-                                data: scanResult.rawValue,
+                                stringData: scanResult.rawValue,
                                 cornerPoints: QrScanner._convertPoints(scanResult.cornerPoints, scanRegion),
                             };
                         } catch (e) {
@@ -585,14 +587,14 @@ class QrScanner {
                     })(),
                 ]);
             }
-            return returnDetailedScanResult ? detailedScanResult : detailedScanResult.data;
+            return returnDetailedScanResult ? detailedScanResult : detailedScanResult.stringData;
         } catch (e) {
             if (!scanRegion || !alsoTryWithoutScanRegion) throw e;
             const detailedScanResult = await QrScanner.scanImage(
                 imageOrFileOrBlobOrUrl,
                 { qrEngine, canvas, disallowCanvasResizing },
             );
-            return returnDetailedScanResult ? detailedScanResult : detailedScanResult.data;
+            return returnDetailedScanResult ? detailedScanResult : detailedScanResult.stringData;
         } finally {
             if (!gotExternalEngine) {
                 QrScanner._postWorkerMessage(qrEngine!, 'close');
@@ -839,7 +841,7 @@ class QrScanner {
                 if (this._onDecode) {
                     this._onDecode(result);
                 } else if (this._legacyOnDecode) {
-                    this._legacyOnDecode(result.data);
+                    this._legacyOnDecode(result.stringData);
                 }
 
                 if (this.$codeOutlineHighlight) {
@@ -1092,7 +1094,9 @@ declare namespace QrScanner {
     }
 
     export interface ScanResult {
-        data: string;
+        stringData: string;
+        binaryData?: Uint8ClampedArray;
+        version?: string;
         // In clockwise order, starting at top left, but this might not be guaranteed in the future.
         cornerPoints: QrScanner.Point[];
     }

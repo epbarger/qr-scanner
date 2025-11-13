@@ -60,6 +60,8 @@ function decode(data: { data: Uint8ClampedArray, width: number, height: number }
         id: requestId,
         type: 'qrResult',
         data: result.data,
+        binaryData: result.binaryData,
+        version: result.version,
         // equivalent to cornerPoints of native BarcodeDetector
         cornerPoints: [
             result.location.topLeftCorner,

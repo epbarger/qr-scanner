@@ -18,11 +18,12 @@
     "types/qr-scanner.d.ts"
   ],
   "scripts": {
-    "build": "rollup --config && tsc src/qr-scanner.ts --target esnext --module esnext --declaration --declarationDir types --emitDeclarationOnly"
+    "build": "rollup --config && tsc src/qr-scanner.ts --target esnext --module esnext --declaration --declarationDir types --emitDeclarationOnly",
+    "demo": "python3 -m http.server"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nimiq/qr-scanner.git"
+    "url": "git+https://github.com/epbarger/qr-scanner.git"
   },
   "keywords": [
     "qr",
@@ -38,9 +39,9 @@
   "author": "Nimiq (https://nimiq.com)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nimiq/qr-scanner/issues"
+    "url": "https://github.com/epbarger/qr-scanner/issues"
   },
-  "homepage": "https://github.com/nimiq/qr-scanner#readme",
+  "homepage": "https://github.com/epbarger/qr-scanner#readme",
   "dependencies": {
     "@types/offscreencanvas": "^2019.6.4"
   },
