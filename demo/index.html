@@ -55,6 +55,15 @@
 <br>
 <button id="start-button">Start</button>
 <button id="stop-button">Stop</button>
+
+<div style="margin-top: 32px;">
+<button id="add-to-file">Add Last QR Data to File</button>
+<span>QRs Added: <span id="qrs-added">0</span></span>
+<br/>
+<button id="download-file">Download File</button>
+
+</div>
+
 <hr>
 
 <h1>Scan from File:</h1>
@@ -79,8 +88,14 @@
     const fileSelector = document.getElementById('file-selector');
     const fileQrResult = document.getElementById('file-qr-result');
 
+    let totalBinaryData = []
+    let qrsAdded = 0
+    let mostRecentBinaryData = null
+
     function setResult(label, result) {
         console.log(result)
+        mostRecentBinaryData = result.binaryData;
+        console.log(mostRecentBinaryData)
         label.textContent = result.binaryData;
         camQrResultTimestamp.textContent = new Date().toString();
         label.style.color = 'teal';
@@ -156,6 +171,45 @@
     document.getElementById('stop-button').addEventListener('click', () => {
         scanner.stop();
     });
+
+    document.getElementById('add-to-file').addEventListener('click', () => {
+        if (mostRecentBinaryData) {
+            qrsAdded = qrsAdded + 1;
+            totalBinaryData = totalBinaryData.concat(mostRecentBinaryData);
+            console.log("Binary Data: ", totalBinaryData)
+            console.log("Binary Data Length: ", totalBinaryData.length)
+            mostRecentBinaryData = null;
+            document.getElementById('qrs-added').textContent = qrsAdded;
+        }
+    });
+
+    document.getElementById('download-file').addEventListener('click', () => {
+        downloadBlob(totalBinaryData, "file.gb", "application/octet-stream")
+    })
+
+    const downloadURL = (data, fileName) => {
+      const a = document.createElement('a')
+      a.href = data
+      a.download = fileName
+      document.body.appendChild(a)
+      a.style.display = 'none'
+      a.click()
+      a.remove()
+    }
+
+    const downloadBlob = (data, fileName, mimeType) => {
+
+      const blob = new Blob([new Uint8Array(data)], {
+        type: mimeType
+      })
+
+      const url = window.URL.createObjectURL(blob)
+
+      downloadURL(url, fileName)
+
+      setTimeout(() => window.URL.revokeObjectURL(url), 1000)
+    }
+
 
     // ####### File Scanning #######
 
